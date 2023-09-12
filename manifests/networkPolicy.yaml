@@ -1,0 +1,28 @@
+apiVersion: capsule.clastix.io/v1beta2
+kind: Tenant
+metadata:
+  name: oil
+spec:
+  owners:
+  - name: alice
+    kind: User
+  networkPolicies:
+    items:
+    - policyTypes:
+      - Ingress
+      - Egress
+      egress:
+      - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+            except:
+              - 192.168.0.0/16 
+      ingress:
+      - from:
+        - namespaceSelector:
+            matchLabels:
+              capsule.clastix.io/tenant: oil
+        - podSelector: {}
+        - ipBlock:
+            cidr: 192.168.0.0/16
+      podSelector: {}

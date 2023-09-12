@@ -1,0 +1,32 @@
+# https://capsule.clastix.io/docs/general/tutorial#assign-additional-metadata
+---
+# namespace lalbels
+apiVersion: capsule.clastix.io/v1beta2
+kind: Tenant
+metadata:
+  name: oil
+spec:
+  owners:
+  - name: alice
+    kind: User
+  namespaceOptions:
+    additionalMetadata:
+      annotations:
+        storagelocationtype: s3
+      labels:
+        capsule.clastix.io/backup: "true"
+---
+# service labels
+apiVersion: capsule.clastix.io/v1beta2
+kind: Tenant
+metadata:
+  name: oil
+spec:
+  owners:
+  - name: alice
+    kind: User
+  serviceOptions:
+    additionalMetadata:
+      labels:
+        capsule.clastix.io/backup: "true"
+---

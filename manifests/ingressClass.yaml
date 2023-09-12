@@ -1,0 +1,20 @@
+# specifcy ingressClass
+apiVersion: capsule.clastix.io/v1beta2
+kind: Tenant
+metadata:
+  name: oil
+spec:
+  owners:
+  - name: alice
+    kind: User
+  ingressOptions:
+    allowedClasses:
+      allowed:
+      - legacy
+      allowedRegex: ^\w+-lb$
+      matchLabels:
+        env: "production"
+
+#     kubernetes.io/ingress.class: legacy
+# Any attempt of Alice to use a non-valid Ingress Class, or missing it, is denied by the Validation Webhook enforcing it.
+

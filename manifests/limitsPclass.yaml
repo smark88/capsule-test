@@ -1,0 +1,59 @@
+---
+# limits
+apiVersion: capsule.clastix.io/v1beta2
+kind: Tenant
+metadata:
+  name: oil
+spec:
+  owners:
+  - name: alice
+    kind: User
+  namespaceOptions:
+    quota: 3
+  resourceQuotas:
+    scope: Tenant
+    items:
+    - hard:
+        limits.cpu: "8"
+        limits.memory: 16Gi
+        requests.cpu: "8"
+        requests.memory: 16Gi
+    - hard:
+        pods: "10"
+  limitRanges:
+    items:
+    - limits:
+      - default:
+          cpu: 500m
+          memory: 512Mi
+        defaultRequest:
+          cpu: 100m
+          memory: 10Mi
+        type: Container
+---
+# priiority class w/ default
+apiVersion: capsule.clastix.io/v1beta2
+kind: Tenant
+metadata:
+  name: oil
+spec:
+  owners:
+  - name: alice
+    kind: User
+  priorityClasses:
+    allowed:
+    - custom
+    default: "tenant-default"
+    allowedRegex: "^tier-.*$"
+    matchLabels:
+      env: "production"
+---
+# default
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
+  name: tenant-default
+value: 1313
+preemptionPolicy: Never
+globalDefault: false
+description: "This is the default PriorityClass for the oil-tenant"

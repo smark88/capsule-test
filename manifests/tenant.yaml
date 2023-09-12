@@ -1,0 +1,80 @@
+# https://capsule.clastix.io/docs/general/tutorial
+---
+apiVersion: capsule.clastix.io/v1beta2
+kind: Tenant
+metadata:
+  name: oil
+spec:
+  owners:
+  # human users
+  - name: alice
+    kind: User
+  - name: bob
+    kind: User
+  # IaaC for deployments
+  - name: system:serviceaccount:tenant-system:robot
+    kind: ServiceAccount
+  # view only
+  - name: joe
+    kind: User
+    clusterRoles:
+      - view
+  # custom rbac binding
+  additionalRoleBindings:
+  - clusterRoleName: 'prometheus-servicemonitors-viewer'
+    subjects:
+    - apiGroup: rbac.authorization.k8s.io
+      kind: User
+      name: joe
+---
+# alice is mutlitenant ownership
+apiVersion: capsule.clastix.io/v1beta2
+kind: Tenant
+metadata:
+  name: gas
+spec:
+  owners:
+  - name: alice
+    kind: User
+---
+# assign oil and gas to group
+apiVersion: capsule.clastix.io/v1beta2
+kind: Tenant
+metadata:
+  name: gas
+spec:
+  owners:
+  - name: oil-and-gas
+    kind: Group
+---
+# assign oil and gas to group
+apiVersion: capsule.clastix.io/v1beta2
+kind: Tenant
+metadata:
+  name: oil
+spec:
+  owners:
+  - name: oil-and-gas
+    kind: Group
+---
+apiVersion: capsule.clastix.io/v1beta2
+kind: CapsuleConfiguration
+metadata:
+  name: default
+  annotations:
+    meta.helm.sh/release-name: capsule
+    meta.helm.sh/release-namespace: capsule-system
+spec:
+  enableTLSReconciler: true
+  userGroups:
+  - capsule.clastix.io
+  - system:serviceaccounts:tenant-system
+---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: prometheus-servicemonitors-viewer
+rules:
+- apiGroups: ["monitoring.coreos.com"]
+  resources: ["servicemonitors"]
+  verbs: ["get", "list", "watch"]
